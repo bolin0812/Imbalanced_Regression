@@ -282,9 +282,7 @@ def reg_evaluatematrix(actual, pred, model_name='model'):
     gini_non0 = computeGini(dflorentz.optimalmodel, dflorentz.predictivemodel)
   except: 
     gini_non0 = 'error'
-#   scores = np.array([RMSE_all,RMSE_min, RMSE_maj, MAE_all, MAE_min, MAE_maj, gini_non0])
   scores = np.array([RMSE_all,RMSE_min, RMSE_maj, gini_non0])
-#   cols  = ['RMSE_all','RMSE_min', 'RMSE_maj', 'gini_non0']
   cols  = ['RMSE_all','RMSE_min', 'RMSE_maj', 'Gini']
   model_score_cols = [model_name+'_'+col for col in cols]
   model_scores = pd.DataFrame(scores.reshape(1,4), columns=model_score_cols)
