@@ -7,11 +7,6 @@ __author__ = "Bolin Li"
 __date__ = "02 Sep 2020"
 __revised__ = "16 Sep 2020"
 
-from sklearn.neighbors import KNeighborsRegressor
-from tqdm import tqdm
-from sklearn.preprocessing import OrdinalEncoder
-from sklearn.metrics.pairwise import euclidean_distances, cosine_similarity
-from sklearn.utils import resample
 from sklearn.metrics import mean_squared_error
 from scipy.integrate import simps
 import numpy as np
