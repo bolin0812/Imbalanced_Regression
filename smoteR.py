@@ -18,9 +18,17 @@ import pandas as pd
 
 def relevance_rule(x):
     """
-    Domain based relevance function of target values. 
-    relevance map target values into the importance of values ranging from [0,1]
+    One rule-based relevance function for imbalanced target values. 
+    relevance function maps target values into the importance of values ranging from [0,1]
     1 means most relevant cases and should be used to synthesize new samples.  
+    Parameters
+    ----------
+    x: 1 dimensional list or numpy array
+
+    Return:
+    ----------
+    x_relevance: 1 dimensional numpy array
+    the relevance score defined to suggest the "importance" of one observation
     """
     x = np.array(x)
     x_relevance = (x != 0)*1
@@ -28,13 +36,24 @@ def relevance_rule(x):
     
 def relevance_sigmoid(x):
     """
-    Apply sigmoid function as one relevance function. 
+    Use sigmoid function as one relevance function to capture the unlinear relationship. 
+    relevance function maps target values into the importance of values ranging from [0,1]
+    1 means most relevant cases and should be used to synthesize new samples.  
+    Parameters
+    ----------
+    x: 1 dimensional list or numpy array
+
+    Return:
+    ----------
+    x_relevance: 1 dimensional numpy array
+    the relevance score defined to suggest the "importance" of one observation
     """
     x_relevance = 1/(1 + np.exp(-x))
     return x_relevance
 
 def create_synth_samples(df, target, over_rate=2, k=3, categorical_cols = [], random_state=42, metric=euclidean_distances):
-    ''' generate new samples based on input df by SMOTER
+    ''' 
+    generate new samples based on input df by SMOTER
     
     Parameters
     ----------
@@ -48,8 +67,13 @@ def create_synth_samples(df, target, over_rate=2, k=3, categorical_cols = [], ra
             the number of nearest neighbors for each sample
         categorical_cols: list 
             contains all categorical feature names
+        random_state: integer
+            one value to set up the random state
+        metric: function
+            predefined function to measure the distance 
     Return:
-        df_new: pd.DataFrame containing synthesized samples
+    ----------
+        df_new: pandas dataFrame that contains synthesized samples
     '''
     np.random.seed(random_state)
     df_new = pd.DataFrame(columns = df.columns) # initialize empty dataframe 
@@ -106,8 +130,15 @@ def smoteR(D, target, th=0, over_rate = 2, under_rate = 0.5, k = 3,
             the number of nearest neighbors for each sample
         categorical_cols: list 
             contains all categorical feature names
+        relevance:
+            user-defined function to quantify the relevance scores for target values
+        random_state: integer
+            one value to set up the random state
+        metric: function
+            predefined function to measure the distance 
     Return:
-        new_data: dataframe
+    ----------
+        new_data: pandas dataframe
             new dataset contains reduced majority and sythesized minorities 
     '''
     

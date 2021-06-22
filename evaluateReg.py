@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-""" Buid smoteR to correct imbalance for regression tasks """ 
+""" Buid evaluation metrics to measure imbalanced regression modeling performances. """ 
 
 __author__ = "Bolin Li"
 __date__ = "02 Sep 2020"
@@ -12,32 +12,12 @@ from scipy.integrate import simps
 import numpy as np
 import pandas as pd
 import matplotlib as plt
-
-def reg_evaluatematrix(actual, pred, model_name='model'):
-  actual_pred = pd.DataFrame(actual.reset_index(drop=True),columns=['target']).join(pd.DataFrame(pred, columns=['pred']))
-  actual_pred_min = actual_pred[actual_pred.target!=0.0]
-  actual_pred_maj = actual_pred[actual_pred.target==0.0]
-  
-  RMSE_all = np.sqrt(mean_squared_error(actual_pred['target'], actual_pred['pred']))
-  RMSE_min = np.sqrt(mean_squared_error(actual_pred_min['target'], actual_pred_min['pred']))
-  RMSE_maj = np.sqrt(mean_squared_error(actual_pred_maj['target'], actual_pred_maj['pred']))    
-                      
-  try:
-    dflorentz = buildLorentzDataFrame(actual, pred)
-    gini_non0 = computeGini(dflorentz.optimalmodel, dflorentz.predictivemodel)
-  except: 
-    gini_non0 = 'error'
-  scores = np.array([RMSE_all,RMSE_min, RMSE_maj, gini_non0])
-  cols  = ['RMSE_all','RMSE_min', 'RMSE_maj', 'Gini']
-  model_score_cols = [model_name+'_'+col for col in cols]
-  model_scores = pd.DataFrame(scores.reshape(1,4), columns=model_score_cols)
-  
-  return model_scores
   
 def buildLorentzDataFrame(ytrue, ypred, yscore=None, target=1):
-    """Build the Lorentz metrics and store it in a pd dataframe.
+    """
+    Build the Lorentz metrics and store results into a pandas dataframe.
 
-    Used to later compute the Lorentz curve and the Gini coefficient.
+    This dataframe is used to compute the Lorentz curve and the Gini coefficient.
 
     Parameters
     ----------
@@ -99,7 +79,8 @@ def buildLorentzDataFrame(ytrue, ypred, yscore=None, target=1):
 
 
 def computeGini(lorentzoptmdl, lorentzpredmdl):
-    """Compute the gini score.
+    """
+    Compute the gini score.
 
     Parameters
     ----------
@@ -127,14 +108,15 @@ def computeGini(lorentzoptmdl, lorentzpredmdl):
 
 
 def plotLorentzCurve(lorentzoptmdl, lorentzpredmdl, ystr=None):
-    """Compute the Lorentz curve graph.
+    """
+    Compute the Lorentz curve graph.
 
     Parameters
     ----------
-    lorentzoptmdl : array
+    lorentzoptmdl: array
         true lorentz labels
     
-    lorentzpredmdl : array
+    lorentzpredmdl: array
         target lorentz scores
     """
     if ystr is None:
@@ -148,3 +130,45 @@ def plotLorentzCurve(lorentzoptmdl, lorentzpredmdl, ystr=None):
     plt.ylabel(ystr)
     plt.legend(loc='best')
     plt.show()
+
+def reg_evaluatematrix(actual, pred, model_name='model'):
+    """
+    Compute the Lorentz curve graph.
+
+    Parameters
+    ----------
+    actual: pandas series
+        actual labels
+    
+    pred: pandas series
+        predicted scores
+
+    model_name: string
+        model name for logging
+
+    Returns
+    -------
+    model_scores: pandas dataframe
+        scores of evaluation metrics for imbalanced regression tasks
+    """
+
+    actual_pred = pd.DataFrame(actual.reset_index(drop=True),columns=['target']).join(pd.DataFrame(pred, columns=['pred']))
+    actual_pred_min = actual_pred[actual_pred.target!=0.0]
+    actual_pred_maj = actual_pred[actual_pred.target==0.0]
+    
+    RMSE_all = np.sqrt(mean_squared_error(actual_pred['target'], actual_pred['pred']))
+    RMSE_min = np.sqrt(mean_squared_error(actual_pred_min['target'], actual_pred_min['pred']))
+    RMSE_maj = np.sqrt(mean_squared_error(actual_pred_maj['target'], actual_pred_maj['pred']))    
+                        
+    try:
+        dflorentz = buildLorentzDataFrame(actual, pred)
+        gini_non0 = computeGini(dflorentz.optimalmodel, dflorentz.predictivemodel)
+    except: 
+        gini_non0 = 'error'
+        
+    scores = np.array([RMSE_all,RMSE_min, RMSE_maj, gini_non0])
+    cols  = ['RMSE_all','RMSE_min', 'RMSE_maj', 'Gini']
+    model_score_cols = [model_name+'_'+col for col in cols]
+    model_scores = pd.DataFrame(scores.reshape(1,4), columns=model_score_cols)
+    
+    return model_scores
